@@ -286,10 +286,7 @@ div[data-testid="stChatInput"] {
 # Streamlit UI
 st.markdown("<h1 style='font-size: 43px;'>Advanced Event Ticketing Chatbot</h1>", unsafe_allow_html=True)
 
-# Initialize session state for controlling disclaimer visibility and model loading status
-if "show_chat" not in st.session_state:
-    st.session_state.show_chat = False
-
+# Initialize session state for model loading status
 if "models_loaded" not in st.session_state:
     st.session_state.models_loaded = False
 
@@ -321,56 +318,14 @@ if not st.session_state.models_loaded:
                 st.session_state.nlp = nlp
                 st.session_state.model = model
                 st.session_state.tokenizer = tokenizer
+                st.rerun() # Rerun to remove the spinner and show the chat interface
             else:
                 st.error("Failed to load the model. Please refresh the page and try again.")
         except Exception as e:
             st.error(f"Error loading models: {str(e)}")
 
-# Display Disclaimer and Continue button only after models are loaded
-if st.session_state.models_loaded and not st.session_state.show_chat:
-    st.markdown(
-        """
-        <div style="background-color: #f8d7da; padding: 20px; border-radius: 10px; color: #721c24; border: 1px solid #f5c6cb; font-family: Arial, sans-serif;">
-            <h1 style="font-size: 36px; color: #721c24; font-weight: bold; text-align: center;">⚠️Disclaimer</h1>
-            <p style="font-size: 16px; line-height: 1.6; color: #721c24;">
-                This <b>Chatbot</b> has been designed to assist users with a variety of ticketing-related inquiries. However, due to computational limitations, this model has been fine-tuned on a select set of intents, and may not be able to respond accurately to all types of queries.
-            </p>
-            <p style="font-size: 16px; line-height: 1.6; color: #721c24;">
-                The chatbot is optimized to handle the following intents:
-            </p>
-            <ul style="font-size: 16px; line-height: 1.6; color: #721c24;">
-                <li>Cancel Ticket</li>
-                <li>Buy Ticket</li>
-                <li>Sell Ticket</li>
-                <li>Transfer Ticket</li>
-                <li>Upgrade Ticket</li>
-                <li>Find Ticket</li>
-                <li>Change Personal Details on Ticket</li>
-                <li>Get Refund</li>
-                <li>Find Upcoming Events</li>
-                <li>Customer Service</li>
-                <li>Check Cancellation Fee</li>
-                <li>Track Cancellation</li>
-                <li>Ticket Information</li>
-            </ul>
-            <p style="font-size: 16px; line-height: 1.6; color: #721c24;">
-                Please note that this chatbot may not be able to assist with queries outside of these predefined intents.
-                Even if the model fails to provide accurate responses from the predefined intents, we kindly ask for your patience and encourage you to try again.
-            </p>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    # Continue button aligned to the right using columns
-    col1, col2 = st.columns([4, 1])  # Adjust ratios as needed
-    with col2:
-        if st.button("Continue", key="continue_button"):
-            st.session_state.show_chat = True
-            st.rerun()
-
-# Show chat interface only after clicking Continue and models are loaded
-if st.session_state.models_loaded and st.session_state.show_chat:
+# Show chat interface only after models are loaded
+if st.session_state.models_loaded:
     st.write("Ask me about ticket cancellations, refunds, or any event-related inquiries!")
 
     # Dropdown and Button section at the TOP, before chat history and input
@@ -435,6 +390,8 @@ if st.session_state.models_loaded and st.session_state.show_chat:
 
             st.session_state.chat_history.append({"role": "assistant", "content": full_response, "avatar": "🤖"})
             last_role = "assistant"
+            # Rerun to clear the dropdown selection state if needed
+            st.rerun()
 
     # Input box at the bottom
     if prompt := st.chat_input("Enter your own question:"):
@@ -468,6 +425,7 @@ if st.session_state.models_loaded and st.session_state.show_chat:
 
             st.session_state.chat_history.append({"role": "assistant", "content": full_response, "avatar": "🤖"})
             last_role = "assistant"
+            st.rerun()
 
     # Conditionally display reset button
     if st.session_state.chat_history:
