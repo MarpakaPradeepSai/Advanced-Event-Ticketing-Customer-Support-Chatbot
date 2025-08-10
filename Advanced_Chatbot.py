@@ -284,7 +284,7 @@ div[data-testid="stChatInput"] {
 )
 
 # Streamlit UI
-st.markdown("<h1 style='font-size: 43px;'>Advanced Events Ticketing Chatbot</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='font-size: 43px;'>Advanced Event Ticketing Chatbot</h1>", unsafe_allow_html=True)
 
 # Initialize session state for controlling disclaimer visibility and model loading status
 if "show_chat" not in st.session_state:
