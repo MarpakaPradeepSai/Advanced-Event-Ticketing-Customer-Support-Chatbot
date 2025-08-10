@@ -7,7 +7,7 @@ import spacy
 import time
 
 # GitHub directory containing the DistilGPT2 model files
-GITHUB_MODEL_URL = "https://github.com/MarpakaPradeepSai/abcd/raw/main/DistilGPT2_Model"
+GITHUB_MODEL_URL = "https://github.com/MarpakaPradeepSai/Advanced-Event-Ticketing-Customer-Support-Chatbot/raw/main/DistilGPT2_Model"
 
 # List of model files to download
 MODEL_FILES = [
