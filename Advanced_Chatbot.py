@@ -429,7 +429,7 @@ if st.session_state.models_loaded:
 
     # Conditionally display reset button
     if st.session_state.chat_history:
-        if st.button("Reset Chat", key="reset_button"):
+        if st.button("Clear Chat", key="reset_button"):
             st.session_state.chat_history = []
             last_role = None
             st.rerun()
