@@ -1,4 +1,4 @@
-# Advanced-Events-Ticketing-Customer-Support-Chatbot
+# Advanced-Event-Ticketing-Customer-Support-Chatbot
 **Streamlit App🔥**: https://advanced-event-ticketing-customer-support-chatbot.streamlit.app/
 
 ### **📝 Note:**
