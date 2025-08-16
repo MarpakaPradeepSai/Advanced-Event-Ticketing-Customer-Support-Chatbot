@@ -326,7 +326,7 @@ if not st.session_state.models_loaded:
 
 # Show chat interface only after models are loaded
 if st.session_state.models_loaded:
-    st.write("Ask me about ticket cancellations, refunds, or any event-related inquiries!")
+    st.write("Ask me about ticket booking, cancellations, refunds, or any event-related inquiries!")
 
     # Dropdown and Button section at the TOP, before chat history and input
     selected_query = st.selectbox(
