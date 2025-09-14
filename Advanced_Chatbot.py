@@ -2,11 +2,11 @@ import streamlit as st
 import torch
 from transformers import (
     GPT2Tokenizer, GPT2LMHeadModel,
-    AutoTokenizer, AutoModelForSequenceClassification  # Added for the classifier
+    AutoTokenizer, AutoModelForSequenceClassification
 )
 import spacy
 import time
-import random  # Added for fallback responses
+import random
 
 # =============================
 # MODEL AND CONFIGURATION SETUP
@@ -14,7 +14,7 @@ import random  # Added for fallback responses
 
 # Hugging Face model IDs
 GPT2_MODEL_ID = "IamPradeep/AETCSCB_OOD_IC_DistilGPT2_Fine-tuned"
-CLASSIFIER_ID = "IamPradeep/Query_Classifier_DistilBERT"  # ID for the new classifier model
+CLASSIFIER_ID = "IamPradeep/Query_Classifier_DistilBERT"
 
 # Random OOD Fallback Responses
 fallback_responses = [
@@ -69,7 +69,6 @@ def load_gpt2_model_and_tokenizer():
         st.error(f"Failed to load GPT-2 model from Hugging Face Hub. Error: {e}")
         return None, None
 
-# --- NEW: Function to load the classifier model ---
 @st.cache_resource(show_spinner=False)
 def load_classifier_model():
     try:
@@ -80,7 +79,6 @@ def load_classifier_model():
         st.error(f"Failed to load classifier model from Hugging Face Hub. Error: {e}")
         return None, None
 
-# --- NEW: Function to check if a query is Out-of-Domain (OOD) ---
 def is_ood(query: str, model, tokenizer):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
@@ -93,10 +91,9 @@ def is_ood(query: str, model, tokenizer):
     return pred_id == 1  # True if OOD (label 1)
 
 # =============================
-# ORIGINAL HELPER FUNCTIONS (UNCHANGED)
+# ORIGINAL HELPER FUNCTIONS
 # =============================
 
-#Define static placeholders with Markdown hyperlinks
 static_placeholders = {
     "{{WEBSITE_URL}}": "[website](https://github.com/MarpakaPradeepSai)",
     "{{SUPPORT_TEAM_LINK}}": "[support team](https://github.com/MarpakaPradeepSai)",
@@ -220,7 +217,7 @@ def generate_response(model, tokenizer, instruction, max_length=256):
     return response[response_start:].strip()
 
 # =============================
-# CSS AND UI SETUP (CORRECTED FOR FOOTER)
+# CSS AND UI SETUP
 # =============================
 
 st.markdown(
@@ -234,26 +231,23 @@ div[data-testid="stHorizontalBlock"] div[data-testid="stButton"] button:nth-of-t
 .horizontal-line { border-top: 2px solid #e0e0e0; margin: 15px 0; }
 div[data-testid="stChatInput"] { box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); border-radius: 5px; padding: 10px; margin: 10px 0; }
 
-/* --- CORRECTED FOOTER STYLING --- */
-/* The footer background adapts to the theme, while the text color remains gray. */
 .footer {
     position: fixed;
     left: 0;
     bottom: 0;
     width: 100%;
-    background: var(--streamlit-background-color); /* Use Streamlit's theme variable to adapt to light/dark mode */
-    color: gray; /* Reverted to the original 'gray' color as requested */
+    background: var(--streamlit-background-color);
+    color: gray;
     text-align: center;
     padding: 5px 0;
     font-size: 13px;
     z-index: 9999;
 }
-.main { padding-bottom: 40px; }  /* Add padding to main content to avoid overlap */
+.main { padding-bottom: 40px; }
 </style>
     """, unsafe_allow_html=True
 )
 
-# Add the fixed footer disclaimer at the very beginning (to ensure it's rendered early and persists during generation)
 st.markdown(
     """
     <div class="footer">
@@ -265,8 +259,13 @@ st.markdown(
 
 st.markdown("<h1 style='font-size: 43px;'>Advanced Event Ticketing Chatbot</h1>", unsafe_allow_html=True)
 
+# --- FIX: Initialize state variables for managing generation process ---
 if "models_loaded" not in st.session_state:
     st.session_state.models_loaded = False
+if "generating" not in st.session_state:
+    st.session_state.generating = False # This will track if a response is being generated
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
 
 example_queries = [
     "How do I buy a ticket?", "How can I upgrade my ticket for the upcoming event in Hyderabad?",
@@ -275,20 +274,19 @@ example_queries = [
     "How can I track my ticket cancellation status?", "How can I sell my ticket?"
 ]
 
-# --- MODIFIED: Load all models at once ---
 if not st.session_state.models_loaded:
     with st.spinner("Loading models and resources... Please wait..."):
         try:
             nlp = load_spacy_model()
             gpt2_model, gpt2_tokenizer = load_gpt2_model_and_tokenizer()
-            clf_model, clf_tokenizer = load_classifier_model()  # Load the new model
+            clf_model, clf_tokenizer = load_classifier_model()
 
             if all([nlp, gpt2_model, gpt2_tokenizer, clf_model, clf_tokenizer]):
                 st.session_state.models_loaded = True
                 st.session_state.nlp = nlp
-                st.session_state.model = gpt2_model # Keep original names for compatibility
+                st.session_state.model = gpt2_model
                 st.session_state.tokenizer = gpt2_tokenizer
-                st.session_state.clf_model = clf_model # Add new models to session state
+                st.session_state.clf_model = clf_model
                 st.session_state.clf_tokenizer = clf_tokenizer
                 st.rerun()
             else:
@@ -297,27 +295,28 @@ if not st.session_state.models_loaded:
             st.error(f"Error loading models: {str(e)}")
 
 # ==================================
-# MAIN CHAT INTERFACE (LOGIC ADDED)
+# MAIN CHAT INTERFACE
 # ==================================
 
 if st.session_state.models_loaded:
     st.write("Ask me about ticket bookings, cancellations, refunds, or any event-related inquiries!")
 
+    # --- FIX: Disable input widgets while generating a response ---
     selected_query = st.selectbox(
         "Choose a query from examples:", ["Choose your question"] + example_queries,
-        key="query_selectbox", label_visibility="collapsed"
+        key="query_selectbox", label_visibility="collapsed",
+        disabled=st.session_state.generating
     )
-    process_query_button = st.button("Ask this question", key="query_button")
+    process_query_button = st.button(
+        "Ask this question", key="query_button",
+        disabled=st.session_state.generating
+    )
 
-    # Access all loaded models from session state
     nlp = st.session_state.nlp
     model = st.session_state.model
     tokenizer = st.session_state.tokenizer
     clf_model = st.session_state.clf_model
     clf_tokenizer = st.session_state.clf_tokenizer
-
-    if "chat_history" not in st.session_state:
-        st.session_state.chat_history = []
 
     last_role = None
 
@@ -328,84 +327,72 @@ if st.session_state.models_loaded:
             st.markdown(message["content"], unsafe_allow_html=True)
         last_role = message["role"]
 
+    # --- REFACTORED: Create a unified function to handle prompt processing ---
+    def handle_prompt(prompt_text):
+        if not prompt_text or not prompt_text.strip():
+            st.toast("⚠️ Please enter or select a question.")
+            return
+
+        # --- FIX: Set generating state to True to lock the UI ---
+        st.session_state.generating = True
+
+        prompt_text = prompt_text[0].upper() + prompt_text[1:]
+        st.session_state.chat_history.append({"role": "user", "content": prompt_text, "avatar": "👤"})
+
+        # Rerun to display the user's message and disable inputs immediately
+        st.rerun()
+
+
+    def process_generation():
+        # This function runs only after the UI is locked and the user message is shown
+        last_message = st.session_state.chat_history[-1]["content"]
+
+        with st.chat_message("assistant", avatar="🤖"):
+            message_placeholder = st.empty()
+            full_response = ""
+
+            if is_ood(last_message, clf_model, clf_tokenizer):
+                full_response = random.choice(fallback_responses)
+            else:
+                with st.spinner("Generating response..."):
+                    dynamic_placeholders = extract_dynamic_placeholders(last_message, nlp)
+                    response_gpt = generate_response(model, tokenizer, last_message)
+                    full_response = replace_placeholders(response_gpt, dynamic_placeholders, static_placeholders)
+
+            streamed_text = ""
+            for word in full_response.split(" "):
+                streamed_text += word + " "
+                message_placeholder.markdown(streamed_text + "⬤", unsafe_allow_html=True)
+                time.sleep(0.05)
+            message_placeholder.markdown(full_response, unsafe_allow_html=True)
+
+        st.session_state.chat_history.append({"role": "assistant", "content": full_response, "avatar": "🤖"})
+        # --- FIX: Set generating state to False to unlock UI ---
+        st.session_state.generating = False
+
+
+    # --- LOGIC FLOW ---
+    # 1. Handle triggers (button click or chat input)
     if process_query_button:
-        if selected_query == "Choose your question":
-            st.error("⚠️ Please select your question from the dropdown.")
-        elif selected_query:
-            prompt_from_dropdown = selected_query
-            prompt_from_dropdown = prompt_from_dropdown[0].upper() + prompt_from_dropdown[1:] if prompt_from_dropdown else prompt_from_dropdown
-
-            st.session_state.chat_history.append({"role": "user", "content": prompt_from_dropdown, "avatar": "👤"})
-            if last_role == "assistant":
-                st.markdown("<div class='horizontal-line'></div>", unsafe_allow_html=True)
-            with st.chat_message("user", avatar="👤"):
-                st.markdown(prompt_from_dropdown, unsafe_allow_html=True)
-            last_role = "user"
-
-            with st.chat_message("assistant", avatar="🤖"):
-                message_placeholder = st.empty()
-                full_response = ""
-
-                # --- ADDED: OOD CHECK ---
-                if is_ood(prompt_from_dropdown, clf_model, clf_tokenizer):
-                    full_response = random.choice(fallback_responses)
-                else:
-                    # --- ORIGINAL LOGIC (UNCHANGED) ---
-                    with st.spinner("Generating response..."):
-                        dynamic_placeholders = extract_dynamic_placeholders(prompt_from_dropdown, nlp)
-                        response_gpt = generate_response(model, tokenizer, prompt_from_dropdown)
-                        full_response = replace_placeholders(response_gpt, dynamic_placeholders, static_placeholders)
-
-                streamed_text = ""
-                for word in full_response.split(" "):
-                    streamed_text += word + " "
-                    message_placeholder.markdown(streamed_text + "⬤", unsafe_allow_html=True)
-                    time.sleep(0.05)
-                message_placeholder.markdown(full_response, unsafe_allow_html=True)
-
-            st.session_state.chat_history.append({"role": "assistant", "content": full_response, "avatar": "🤖"})
-            last_role = "assistant"
-            st.rerun()
-
-    if prompt := st.chat_input("Enter your own question:"):
-        prompt = prompt[0].upper() + prompt[1:] if prompt else prompt
-        if not prompt.strip():
-            st.toast("⚠️ Please enter a question.")
+        if selected_query != "Choose your question":
+            handle_prompt(selected_query)
         else:
-            st.session_state.chat_history.append({"role": "user", "content": prompt, "avatar": "👤"})
-            if last_role == "assistant":
-                st.markdown("<div class='horizontal-line'></div>", unsafe_allow_html=True)
-            with st.chat_message("user", avatar="👤"):
-                st.markdown(prompt, unsafe_allow_html=True)
-            last_role = "user"
+            st.error("⚠️ Please select your question from the dropdown.")
 
-            with st.chat_message("assistant", avatar="🤖"):
-                message_placeholder = st.empty()
-                full_response = ""
+    if prompt := st.chat_input("Enter your own question:", disabled=st.session_state.generating):
+        handle_prompt(prompt)
 
-                # --- ADDED: OOD CHECK ---
-                if is_ood(prompt, clf_model, clf_tokenizer):
-                    full_response = random.choice(fallback_responses)
-                else:
-                    # --- ORIGINAL LOGIC (UNCHANGED) ---
-                    with st.spinner("Generating response..."):
-                        dynamic_placeholders = extract_dynamic_placeholders(prompt, nlp)
-                        response_gpt = generate_response(model, tokenizer, prompt)
-                        full_response = replace_placeholders(response_gpt, dynamic_placeholders, static_placeholders)
+    # 2. If UI is locked, it means we need to generate a response
+    if st.session_state.generating:
+        process_generation()
+        # After generation, rerun to update the UI with the final response and re-enable inputs
+        st.rerun()
 
-                streamed_text = ""
-                for word in full_response.split(" "):
-                    streamed_text += word + " "
-                    message_placeholder.markdown(streamed_text + "⬤", unsafe_allow_html=True)
-                    time.sleep(0.05)
-                message_placeholder.markdown(full_response, unsafe_allow_html=True)
 
-            st.session_state.chat_history.append({"role": "assistant", "content": full_response, "avatar": "🤖"})
-            last_role = "assistant"
-            st.rerun()
-
+    # The clear button should also be disabled during generation
     if st.session_state.chat_history:
-        if st.button("Clear Chat", key="reset_button"):
+        if st.button("Clear Chat", key="reset_button", disabled=st.session_state.generating):
             st.session_state.chat_history = []
+            st.session_state.generating = False # Ensure state is reset
             last_role = None
             st.rerun()
