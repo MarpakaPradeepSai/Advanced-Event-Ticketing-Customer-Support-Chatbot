@@ -99,7 +99,7 @@ static_placeholders = {
     "{{SUPPORT_TEAM_LINK}}": "[support team](https://github.com/MarpakaPradeepSai)",
     "{{CONTACT_SUPPORT_LINK}}" : "[support team](https://github.com/MarpakaPradeepSai)",
     "{{SUPPORT_CONTACT_LINK}}" : "[support team](https://github.com/MarpakaPradeepSai)",
-    "{{CANCEL_TICKET_SECTION}}": "<b>Cancel Ticket</b>",
+    "{{CANCEL_TICKET_SECTION}}": "<b>Ticket Cancellation</b>",
     "{{CANCEL_TICKET_OPTION}}": "<b>Cancel Ticket</b>",
     "{{GET_REFUND_OPTION}}": "<b>Get Refund</b>",
     "{{UPGRADE_TICKET_INFORMATION}}": "<b>Upgrade Ticket Information</b>",
