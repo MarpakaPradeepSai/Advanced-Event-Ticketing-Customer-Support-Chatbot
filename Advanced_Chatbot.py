@@ -13,7 +13,7 @@ import random
 # =============================
 
 # Hugging Face model IDs
-GPT2_MODEL_ID = "IamPradeep/AETCSCB_OOD_IC_DistilGPT2_Fine-tuned"
+DistilGPT2_MODEL_ID = "IamPradeep/AETCSCB_OOD_IC_DistilGPT2_Fine-tuned"
 CLASSIFIER_ID = "IamPradeep/Query_Classifier_DistilBERT"
 
 # Random OOD Fallback Responses
@@ -62,8 +62,8 @@ def load_spacy_model():
 @st.cache_resource(show_spinner=False)
 def load_gpt2_model_and_tokenizer():
     try:
-        model = GPT2LMHeadModel.from_pretrained(GPT2_MODEL_ID, trust_remote_code=True)
-        tokenizer = GPT2Tokenizer.from_pretrained(GPT2_MODEL_ID)
+        model = GPT2LMHeadModel.from_pretrained(DistilGPT2_MODEL_ID, trust_remote_code=True)
+        tokenizer = GPT2Tokenizer.from_pretrained(DistilGPT2_MODEL_ID)
         return model, tokenizer
     except Exception as e:
         st.error(f"Failed to load GPT-2 model from Hugging Face Hub. Error: {e}")
