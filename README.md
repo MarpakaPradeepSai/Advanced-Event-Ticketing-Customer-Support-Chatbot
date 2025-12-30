@@ -432,7 +432,7 @@ The following models are automatically downloaded from Hugging Face Hub on first
 |-------|--------|------|
 | Spell Corrector | `oliverguhr/spelling-correction-english-base` | ~250MB |
 | GLiNER | `gliner-community/gliner_small-v2.5` | ~100MB |
-| DistilGPT2 (Fine-tuned) | `IamPradeep/AETCSCB_OOD_IC_DistilGPT2_Fine-tuned` | ~350MB |
+| DistilGPT2 (Fine-tuned) | `IamPradeep/AETCSCB_OOD_IC_DistilGPT2_Fine-tuned` | ~330MB |
 | DistilBERT Classifier | `IamPradeep/Query_Classifier_DistilBERT` | ~270MB |
 
 ---
