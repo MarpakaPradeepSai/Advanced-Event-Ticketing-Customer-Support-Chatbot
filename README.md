@@ -400,8 +400,8 @@ Training Loss Over Epochs:
 
 ```bash
 # Clone the repository
-git clone https://github.com/MarpakaPradeepSai/Advanced-Event-Ticketing-Chatbot.git
-cd Advanced-Event-Ticketing-Chatbot
+git clone https://github.com/MarpakaPradeepSai/Advanced-Event-Ticketing-Customer-Support-Chatbot.git
+cd Advanced-Event-Ticketing-Customer-Support-Chatbot
 
 # Create virtual environment
 python -m venv venv
