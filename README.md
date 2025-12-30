@@ -689,7 +689,7 @@ def compute_metrics(eval_pred):
 ## 📁 Project Structure
 
 ```
-Advanced-Event-Ticketing-Chatbot/
+Advanced-Event-Ticketing-Customer-Support-Chatbot/
 │
 ├── Data/                       # 1. Dataset Repository
 │   ├── Bitext-events-ticketing-llm-chatbot-training-dataset.csv   # Response generation data
