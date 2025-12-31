@@ -234,7 +234,35 @@ Output: {
 
 </details>
 
-### 4️⃣ Response Generator: DistilGPT2
+### 4️⃣ Query Classifier: DistilBERT
+
+<details>
+<summary><b>Click to expand training details</b></summary>
+
+**Base Model:** `distilbert-base-uncased`
+
+**Training Configuration:**
+```python
+TrainingArguments(
+    output_dir='./results',
+    num_train_epochs=5,
+    per_device_train_batch_size=8,
+    per_device_eval_batch_size=16,
+    warmup_steps=500,
+    weight_decay=0.01,
+    learning_rate=2e-5,
+    lr_scheduler_type="linear"
+)
+```
+
+**Dataset:**
+- **Training:** 47,101 samples
+- **Validation:** 8,312 samples
+- Binary labels: In-domain (0) / Out-of-domain (1)
+
+</details>
+
+### 5️⃣ Response Generator: DistilGPT2
 
 <details>
 <summary><b>Click to expand training details</b></summary>
@@ -278,34 +306,6 @@ model.generate(
 | 10 | 0.0864 |
 
 **Total Training Time:** ~4 hours on GPU
-
-</details>
-
-### 5️⃣ Query Classifier: DistilBERT
-
-<details>
-<summary><b>Click to expand training details</b></summary>
-
-**Base Model:** `distilbert-base-uncased`
-
-**Training Configuration:**
-```python
-TrainingArguments(
-    output_dir='./results',
-    num_train_epochs=5,
-    per_device_train_batch_size=8,
-    per_device_eval_batch_size=16,
-    warmup_steps=500,
-    weight_decay=0.01,
-    learning_rate=2e-5,
-    lr_scheduler_type="linear"
-)
-```
-
-**Dataset:**
-- **Training:** 47,101 samples
-- **Validation:** 8,312 samples
-- Binary labels: In-domain (0) / Out-of-domain (1)
 
 </details>
 
